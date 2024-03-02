@@ -5,6 +5,7 @@
 
     vim
     git
+    python3
     wget
     curl
     fish
@@ -15,26 +16,19 @@
     ripgrep
     fd
     fzf
-    bat
-    tldr
-    fastfetch
-    lolcat
-    pv
+    tealdeer
     compsize
-    unzip
     spotdl 
     tmux
-    podman
     distrobox
-    wgcf
     wireguard-tools
+    adw-gtk3
+    ddcutil
 
     burpsuite
     blackbox-terminal
     gnome.dconf-editor
     gnome.gnome-tweaks
-    adw-gtk3
-    ddcutil
     btrfs-assistant
     vscode
     vlc
@@ -111,11 +105,9 @@
   services.power-profiles-daemon.enable = false;
   # services.logmein-hamachi.enable = true;
 
-  environment.fhs.enable = true;
-  environment.fhs.linkLibs = true;
-  environment.lsb.enable = true;
-
   virtualisation.libvirtd.enable = true;
+  virtualisation.podman.enable = true;
+  virtualisation.containers.enable = true;
 
   # Set external display as primary in GDM
   systemd.tmpfiles.rules = [
@@ -125,7 +117,12 @@
   imports =
     [ 
       ./hardware-configuration.nix # Include the results of the hardware scan.
+      ./nixos-fhs-compat/default.nix
     ];
+
+  environment.fhs.enable = true;
+  environment.fhs.linkLibs = true;
+  environment.lsb.enable = true;
 
   zramSwap.enable = true;
 
@@ -140,7 +137,6 @@
     isNormalUser = true;
     description = "Rohan";
     extraGroups = [ "networkmanager" "wheel" "i2c" ];
-    packages = with pkgs; [ ];
   };
 
   fileSystems."/" =
@@ -156,9 +152,12 @@
     };
   
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.extraOptions =
+    ''
+      warn-dirty = false
+    '';
 
   networking.hostName = "nixos";
-
   networking.networkmanager.enable = true;
 
   time.timeZone = "America/New_York";
@@ -202,10 +201,6 @@
   nixpkgs.config.allowUnfree = true;
 
   # services.openssh.enable = true;
-
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # networking.firewall.enable = false;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

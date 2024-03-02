@@ -1,27 +1,12 @@
 {
   "nodes": {
-    "nixos-fhs-compat": {
-      "locked": {
-        "lastModified": 1709166199,
-        "narHash": "sha256-ik5c1pSeTwQLoFibApZaIL7KqG4wPAzI7maPb+gqu+Y=",
-        "owner": "rohanssrao",
-        "repo": "nixos-fhs-compat",
-        "rev": "46a46234189fb19b1aca409191b152468ca21d06",
-        "type": "github"
-      },
-      "original": {
-        "owner": "rohanssrao",
-        "repo": "nixos-fhs-compat",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1708984720,
-        "narHash": "sha256-gJctErLbXx4QZBBbGp78PxtOOzsDaQ+yw1ylNQBuSUY=",
+        "lastModified": 1709237383,
+        "narHash": "sha256-cy6ArO4k5qTx+l5o+0mL9f5fa86tYUX3ozE1S+Txlds=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "13aff9b34cc32e59d35c62ac9356e4a41198a538",
+        "rev": "1536926ef5621b09bba54035ae2bb6d806d72ac8",
         "type": "github"
       },
       "original": {
@@ -33,7 +18,6 @@
     },
     "root": {
       "inputs": {
-        "nixos-fhs-compat": "nixos-fhs-compat",
         "nixpkgs": "nixpkgs"
       }
     }
