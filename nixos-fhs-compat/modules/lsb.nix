@@ -26,7 +26,7 @@
     libsFromPkgs = pkgs:
       with pkgs;
       [
-        # taken from Mic92/nix-ld + steam-run + balsoft/nixos-fhs-compat
+        # Mic92/nix-ld + steam-run + balsoft/nixos-fhs-compat + personal additions
         zstd
         stdenv.cc.cc
         libssh
@@ -162,6 +162,8 @@
         glibc
         linux-pam
         sane-backends
+
+        fuse
       ];
 
     base-libs32 = pkgs.buildEnv {

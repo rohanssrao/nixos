@@ -2,7 +2,6 @@
 
 {
   environment.systemPackages = with pkgs; [
-
     vim
     git
     python3
@@ -63,14 +62,12 @@
     gnomeExtensions.gesture-improvements
     gnomeExtensions.just-perfection
     gnomeExtensions.removable-drive-menu
-
   ];
 
   programs.firefox = {
     enable = true;
     autoConfig =
       ''
-        // skip 1st line
         try {
           let cmanifest = Cc['@mozilla.org/file/directory_service;1'].getService(Ci.nsIProperties).get('UChrm', Ci.nsIFile);
           cmanifest.append('utils');
@@ -111,14 +108,13 @@
 
   # Set external display as primary in GDM
   systemd.tmpfiles.rules = [
-    ''f+ /run/gdm/.config/monitors.xml - gdm gdm - <monitors version="2"> <configuration> <logicalmonitor> <x>0</x> <y>0</y> <scale>1</scale> <primary>yes</primary> <monitor> <monitorspec> <connector>HDMI-1</connector> <vendor>LEN</vendor> <product>LEN L23i-18</product> <serial>0x4d473634</serial> </monitorspec> <mode> <width>1920</width> <height>1080</height> <rate>60.000</rate> </mode> </monitor> </logicalmonitor> <disabled> <monitorspec> <connector>eDP-1</connector> <vendor>AUO</vendor> <product>0x20ec</product> <serial>0x00000000</serial> </monitorspec> </disabled> </configuration> </monitors>''
+    ''f+ /run/gdm/.config/monitors.xml - gdm gdm - <monitors version="2"> <configuration> <logicalmonitor> <x>0</x> <y>0</y> <scale>1</scale> <primary>yes</primary> <monitor> <monitorspec> <connector>HDMI-1</connector> <vendor>LEN</vendor> <product>LEN L23i-18</product> <serial>0x4d473634</serial> </monitorspec> <mode> <width>1920</width> <height>1080</height> <rate>74.986</rate> </mode> </monitor> </logicalmonitor> <disabled> <monitorspec> <connector>eDP-1</connector> <vendor>AUO</vendor> <product>0x20ec</product> <serial>0x00000000</serial> </monitorspec> </disabled> </configuration> </monitors>''
   ];
 
-  imports =
-    [ 
-      ./hardware-configuration.nix # Include the results of the hardware scan.
-      ./nixos-fhs-compat/default.nix
-    ];
+  imports = [ 
+    ./hardware-configuration.nix # Include the results of the hardware scan.
+    ./nixos-fhs-compat/default.nix
+  ];
 
   environment.fhs.enable = true;
   environment.fhs.linkLibs = true;
@@ -139,31 +135,20 @@
     extraGroups = [ "networkmanager" "wheel" "i2c" ];
   };
 
-  fileSystems."/" =
-    { device = "/dev/disk/by-uuid/ee38052f-9e4a-42e5-b301-e492f916b23e";
-      fsType = "btrfs";
-      options = [ "subvol=@" "compress-force=zstd:3" ];
-    };
-
-  fileSystems."/home" =
-    { device = "/dev/disk/by-uuid/ee38052f-9e4a-42e5-b301-e492f916b23e";
-      fsType = "btrfs";
-      options = [ "subvol=@home" "compress-force=zstd:3" ];
-    };
-  
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nix.extraOptions =
-    ''
-      warn-dirty = false
-    '';
-
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
+
+  fileSystems."/".options = [ "subvol=@" "compress-force=zstd:3" ];
+  fileSystems."/home".options = [ "subvol=@home" "compress-force=zstd:3" ];
+  
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.extraOptions = "warn-dirty = false";
+
+  nixpkgs.config.allowUnfree = true;
 
   time.timeZone = "America/New_York";
 
   i18n.defaultLocale = "en_US.UTF-8";
-
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "en_US.UTF-8";
     LC_IDENTIFICATION = "en_US.UTF-8";
@@ -197,10 +182,6 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-
-  nixpkgs.config.allowUnfree = true;
-
-  # services.openssh.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
