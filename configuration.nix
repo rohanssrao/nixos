@@ -113,7 +113,7 @@
 
   imports = [ 
     ./hardware-configuration.nix # Include the results of the hardware scan.
-    ./nixos-fhs-compat/default.nix
+    ./compat/default.nix
   ];
 
   environment.fhs.enable = true;
