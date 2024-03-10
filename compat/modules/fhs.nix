@@ -23,11 +23,11 @@
       "L+ /bin     - - - - /run/current-system/sw/bin"
       "L+ /sbin    - - - - /run/current-system/sw/bin"
       "L+ /usr/bin - - - - /run/current-system/sw/bin"
-    ] ++ lib.optionals config.environment.fhs.linkLibs ([
+    ] ++ lib.optionals config.environment.fhs.linkLibs [
       "L+ /lib     - - - - /etc/lsb/lib"
       "L+ /lib64   - - - - /etc/lsb/lib"
       "L+ /usr/lib - - - - /etc/lsb/lib"
-    ]);
+    ];
     environment.sessionVariables.LD_LIBRARY_PATH = lib.mkIf config.environment.fhs.linkLibs (lib.mkForce "/lib");
     system.activationScripts.binsh = lib.mkIf config.environment.fhs.linkExes (lib.mkForce "");
     system.activationScripts.usrbinenv = lib.mkIf config.environment.fhs.linkExes (lib.mkForce "");

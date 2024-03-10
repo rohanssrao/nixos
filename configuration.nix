@@ -39,19 +39,17 @@
     switcheroo
     obs-studio
     xournalpp
-    haguichi
     microsoft-edge
     vesktop
     obsidian
     gcolor3
     meld
     libreoffice
+    tor-browser
     qbittorrent
     speedcrunch
-    zoom-us
     virt-manager
     virtiofsd
-    tor-browser
     krita
     gnome-network-displays
 
@@ -59,25 +57,19 @@
     gnomeExtensions.appindicator
     gnomeExtensions.brightness-control-using-ddcutil
     gnomeExtensions.disable-workspace-animation
-    gnomeExtensions.gesture-improvements
     gnomeExtensions.just-perfection
     gnomeExtensions.removable-drive-menu
   ];
 
+  # Remove default GNOME extensions
+  environment.gnome.excludePackages = [ pkgs.gnome.gnome-shell-extensions ];
+
   programs.firefox = {
     enable = true;
-    autoConfig =
-      ''
-        try {
-          let cmanifest = Cc['@mozilla.org/file/directory_service;1'].getService(Ci.nsIProperties).get('UChrm', Ci.nsIFile);
-          cmanifest.append('utils');
-          cmanifest.append('chrome.manifest');
-          if(cmanifest.exists()){
-            Components.manager.QueryInterface(Ci.nsIComponentRegistrar).autoRegister(cmanifest);
-            ChromeUtils.importESModule('chrome://userchromejs/content/boot.sys.mjs');
-          }
-        } catch(ex) {};
-      '';
+    autoConfig = builtins.readFile(builtins.fetchurl {  
+      url = "https://raw.githubusercontent.com/MrOtherGuy/fx-autoconfig/master/program/config.js";
+      sha256 = "1mx679fbc4d9x4bnqajqx5a95y1lfasvf90pbqkh9sm3ch945p40";
+    });
   };
 
   programs.kdeconnect = {
@@ -92,7 +84,7 @@
       TIMELINE_CLEANUP = true;
       TIMELINE_LIMIT_HOURLY = 3;
       TIMELINE_LIMIT_DAILY = 3;
-      TIMELINE_LIMIT_WEEKLY = 3;
+      TIMELINE_LIMIT_WEEKLY = 0;
       TIMELINE_LIMIT_MONTHLY = 0;
       TIMELINE_LIMIT_YEARLY = 0;
     };
@@ -100,9 +92,13 @@
 
   services.tlp.enable = true;
   services.power-profiles-daemon.enable = false;
-  # services.logmein-hamachi.enable = true;
+
+  programs.haguichi.enable = true;
+
+  # services.flatpak.enable = true;
 
   virtualisation.libvirtd.enable = true;
+
   virtualisation.podman.enable = true;
   virtualisation.containers.enable = true;
 
