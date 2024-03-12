@@ -15,6 +15,7 @@
     ripgrep
     fd
     fzf
+    bat
     tealdeer
     compsize
     spotdl 
@@ -59,6 +60,7 @@
     gnomeExtensions.disable-workspace-animation
     gnomeExtensions.just-perfection
     gnomeExtensions.removable-drive-menu
+
   ];
 
   # Remove default GNOME extensions
@@ -77,6 +79,17 @@
     package = pkgs.gnomeExtensions.gsconnect;
   };
 
+  programs.haguichi.enable = true;
+
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      zstd stdenv.cc.cc libssh libxml2 acl libsodium util-linux xz systemd xorg.libXcomposite xorg.libXtst xorg.libXrandr xorg.libXext xorg.libX11 xorg.libXfixes libGL libva pipewire harfbuzz libthai pango lsof file mesa.llvmPackages.llvm.lib vulkan-loader expat wayland xorg.libxcb xorg.libXdamage xorg.libxshmfence xorg.libXxf86vm libelf (lib.getLib elfutils) xorg.libXinerama xorg.libXcursor xorg.libXrender xorg.libXScrnSaver xorg.libXi xorg.libSM xorg.libICE gnome2.GConf curlWithGnuTls nspr nss cups libcap SDL2 libusb1 dbus-glib gsettings-desktop-schemas ffmpeg libudev0-shim fontconfig freetype xorg.libXt xorg.libXmu libogg libvorbis SDL SDL2_image glew110 libdrm libidn tbb zlib udev dbus glib gtk2 bzip2 flac freeglut libjpeg libpng libpng12 libsamplerate libmikmod libtheora libtiff pixman speex SDL_image SDL_ttf SDL_mixer SDL2_ttf SDL2_mixer libappindicator-gtk2 libdbusmenu-gtk2 libindicator-gtk2 libcaca libcanberra libgcrypt libunwind libvpx librsvg xorg.libXft libvdpau attr at-spi2-atk at-spi2-core gst_all_1.gstreamer gst_all_1.gst-plugins-ugly gst_all_1.gst-plugins-base json-glib libxkbcommon libxcrypt mono ncurses openssl xorg.xkeyboardconfig xorg.libpciaccess icu gtk3 atk cairo gdk-pixbuf libGLU libuuid libbsd alsa-lib libidn2 libpsl nghttp2.lib rtmpdump libgpg-error libpulseaudio openalSoft libva1 gcc.cc.lib glibc linux-pam sane-backends fuse
+    ];
+  };
+
+  # services.flatpak.enable = true;
+
   services.snapper = {
     configs.home = {
       SUBVOLUME = "/home";
@@ -93,37 +106,40 @@
   services.tlp.enable = true;
   services.power-profiles-daemon.enable = false;
 
-  programs.haguichi.enable = true;
+  services.xserver = {
+    enable = true;
+    displayManager.gdm.enable = true;
+    desktopManager.gnome.enable = true;
+    xkb = {
+      layout = "us";
+      variant = "";
+    };
+  };
 
-  # services.flatpak.enable = true;
+  services.printing.enable = true;
+
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
+  sound.enable = true;
+  hardware.pulseaudio.enable = false;
+
+  security.rtkit.enable = true;
 
   virtualisation.libvirtd.enable = true;
-
   virtualisation.podman.enable = true;
   virtualisation.containers.enable = true;
 
-  # Set external display as primary in GDM
-  systemd.tmpfiles.rules = [
-    ''f+ /run/gdm/.config/monitors.xml - gdm gdm - <monitors version="2"> <configuration> <logicalmonitor> <x>0</x> <y>0</y> <scale>1</scale> <primary>yes</primary> <monitor> <monitorspec> <connector>HDMI-1</connector> <vendor>LEN</vendor> <product>LEN L23i-18</product> <serial>0x4d473634</serial> </monitorspec> <mode> <width>1920</width> <height>1080</height> <rate>74.986</rate> </mode> </monitor> </logicalmonitor> <disabled> <monitorspec> <connector>eDP-1</connector> <vendor>AUO</vendor> <product>0x20ec</product> <serial>0x00000000</serial> </monitorspec> </disabled> </configuration> </monitors>''
-  ];
-
   imports = [ 
     ./hardware-configuration.nix # Include the results of the hardware scan.
-    ./compat/default.nix
   ];
 
-  environment.fhs.enable = true;
-  environment.fhs.linkLibs = true;
-  environment.lsb.enable = true;
-
-  zramSwap.enable = true;
-
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  hardware.i2c.enable = true; # Monitor brightness control
-
-  hardware.opengl.enable = true;
+  fileSystems."/".options = [ "subvol=@" "compress-force=zstd:3" ];
+  fileSystems."/home".options = [ "subvol=@home" "compress-force=zstd:3" ];
 
   users.users.chika = {
     isNormalUser = true;
@@ -134,13 +150,19 @@
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
-  fileSystems."/".options = [ "subvol=@" "compress-force=zstd:3" ];
-  fileSystems."/home".options = [ "subvol=@home" "compress-force=zstd:3" ];
-  
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nix.extraOptions = "warn-dirty = false";
+  zramSwap.enable = true;
 
-  nixpkgs.config.allowUnfree = true;
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  hardware.i2c.enable = true; # Monitor brightness control
+
+  hardware.opengl.enable = true;
+
+  # Set external display as primary in GDM
+  systemd.tmpfiles.rules = [
+    ''f+ /run/gdm/.config/monitors.xml - gdm gdm - <monitors version="2"> <configuration> <logicalmonitor> <x>0</x> <y>0</y> <scale>1</scale> <primary>yes</primary> <monitor> <monitorspec> <connector>HDMI-1</connector> <vendor>LEN</vendor> <product>LEN L23i-18</product> <serial>0x4d473634</serial> </monitorspec> <mode> <width>1920</width> <height>1080</height> <rate>74.986</rate> </mode> </monitor> </logicalmonitor> <disabled> <monitorspec> <connector>eDP-1</connector> <vendor>AUO</vendor> <product>0x20ec</product> <serial>0x00000000</serial> </monitorspec> </disabled> </configuration> </monitors>''
+  ];
 
   time.timeZone = "America/New_York";
 
@@ -157,34 +179,11 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  services.xserver = {
-    enable = true;
-    displayManager.gdm.enable = true;
-    desktopManager.gnome.enable = true;
-    xkb = {
-      layout = "us";
-      variant = "";
-    };
-  };
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.extraOptions = "warn-dirty = false";
 
-  services.printing.enable = true;
+  nixpkgs.config.allowUnfree = true;
 
-  sound.enable = true;
-  hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "23.11";
 
 }
