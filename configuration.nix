@@ -7,7 +7,6 @@
     python3
     wget
     curl
-    fish
     lunarvim
     xclip
     gcc
@@ -88,7 +87,10 @@
     ];
   };
 
-  # services.flatpak.enable = true;
+  programs.fish = {
+    enable = true;
+    shellAliases.python3 = "set py3 $(which python3); LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH $py3";
+  };
 
   services.snapper = {
     configs.home = {
@@ -134,13 +136,6 @@
   virtualisation.podman.enable = true;
   virtualisation.containers.enable = true;
 
-  imports = [ 
-    ./hardware-configuration.nix # Include the results of the hardware scan.
-  ];
-
-  fileSystems."/".options = [ "subvol=@" "compress-force=zstd:3" ];
-  fileSystems."/home".options = [ "subvol=@home" "compress-force=zstd:3" ];
-
   users.users.chika = {
     isNormalUser = true;
     description = "Rohan";
@@ -149,6 +144,13 @@
 
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
+
+  imports = [ 
+    ./hardware-configuration.nix # Include the results of the hardware scan.
+  ];
+
+  fileSystems."/".options = [ "subvol=@" "compress-force=zstd:3" ];
+  fileSystems."/home".options = [ "subvol=@home" "compress-force=zstd:3" ];
 
   zramSwap.enable = true;
 
@@ -167,20 +169,16 @@
   time.timeZone = "America/New_York";
 
   i18n.defaultLocale = "en_US.UTF-8";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_US.UTF-8";
-    LC_IDENTIFICATION = "en_US.UTF-8";
-    LC_MEASUREMENT = "en_US.UTF-8";
-    LC_MONETARY = "en_US.UTF-8";
-    LC_NAME = "en_US.UTF-8";
-    LC_NUMERIC = "en_US.UTF-8";
-    LC_PAPER = "en_US.UTF-8";
-    LC_TELEPHONE = "en_US.UTF-8";
-    LC_TIME = "en_US.UTF-8";
-  };
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nix.extraOptions = "warn-dirty = false";
+  nix = {
+    optimise.automatic = true;
+    gc.automatic = true;
+    gc.options = "--delete-older-than 5d";
+    extraOptions = ''
+      experimental-features = nix-command flakes
+      warn-dirty = false
+    '';
+  };
 
   nixpkgs.config.allowUnfree = true;
 
