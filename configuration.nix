@@ -2,12 +2,13 @@
 
 {
   environment.systemPackages = with pkgs; [
+    fish
     vim
+    lunarvim
     git
     python3
     wget
     curl
-    lunarvim
     xclip
     gcc
     eza
@@ -53,6 +54,11 @@
     krita
     gnome-network-displays
 
+    (lib.hiPrio (writeShellScriptBin "python3" '' # nix-ld fix
+      export LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH
+      exec -a $0 ${python3}/bin/python3 "$@"
+    ''))
+
     gnomeExtensions.arcmenu
     gnomeExtensions.appindicator
     gnomeExtensions.brightness-control-using-ddcutil
@@ -87,10 +93,9 @@
     ];
   };
 
-  programs.fish = {
-    enable = true;
-    shellAliases.python3 = "set py3 $(which python3); LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH $py3";
-  };
+  programs.gnupg.agent.enable = true;
+
+  fonts.fontconfig.useEmbeddedBitmaps = false;
 
   services.snapper = {
     configs.home = {
@@ -127,23 +132,14 @@
     pulse.enable = true;
   };
 
-  sound.enable = true;
-  hardware.pulseaudio.enable = false;
-
-  security.rtkit.enable = true;
-
   virtualisation.libvirtd.enable = true;
   virtualisation.podman.enable = true;
   virtualisation.containers.enable = true;
 
-  users.users.chika = {
-    isNormalUser = true;
-    description = "Rohan";
-    extraGroups = [ "networkmanager" "wheel" "i2c" ];
-  };
+  sound.enable = true;
+  hardware.pulseaudio.enable = false;
 
-  networking.hostName = "nixos";
-  networking.networkmanager.enable = true;
+  security.rtkit.enable = true;
 
   imports = [ 
     ./hardware-configuration.nix # Include the results of the hardware scan.
@@ -157,14 +153,21 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  hardware.i2c.enable = true; # Monitor brightness control
-
   hardware.opengl.enable = true;
 
+  hardware.i2c.enable = true; # Monitor brightness control
+
   # Set external display as primary in GDM
-  systemd.tmpfiles.rules = [
-    ''f+ /run/gdm/.config/monitors.xml - gdm gdm - <monitors version="2"> <configuration> <logicalmonitor> <x>0</x> <y>0</y> <scale>1</scale> <primary>yes</primary> <monitor> <monitorspec> <connector>HDMI-1</connector> <vendor>LEN</vendor> <product>LEN L23i-18</product> <serial>0x4d473634</serial> </monitorspec> <mode> <width>1920</width> <height>1080</height> <rate>74.986</rate> </mode> </monitor> </logicalmonitor> <disabled> <monitorspec> <connector>eDP-1</connector> <vendor>AUO</vendor> <product>0x20ec</product> <serial>0x00000000</serial> </monitorspec> </disabled> </configuration> </monitors>''
-  ];
+  systemd.tmpfiles.rules = [ ''f+ /run/gdm/.config/monitors.xml - gdm gdm - <monitors version="2"> <configuration> <logicalmonitor> <x>0</x> <y>0</y> <scale>1</scale> <primary>yes</primary> <monitor> <monitorspec> <connector>HDMI-1</connector> <vendor>LEN</vendor> <product>LEN L23i-18</product> <serial>0x4d473634</serial> </monitorspec> <mode> <width>1920</width> <height>1080</height> <rate>74.986</rate> </mode> </monitor> </logicalmonitor> <disabled> <monitorspec> <connector>eDP-1</connector> <vendor>AUO</vendor> <product>0x20ec</product> <serial>0x00000000</serial> </monitorspec> </disabled> </configuration> </monitors>'' ];
+
+  users.users.chika = {
+    isNormalUser = true;
+    description = "Rohan";
+    extraGroups = [ "networkmanager" "wheel" "i2c" ];
+  };
+
+  networking.hostName = "nixos";
+  networking.networkmanager.enable = true;
 
   time.timeZone = "America/New_York";
 
