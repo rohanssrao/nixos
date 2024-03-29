@@ -96,6 +96,8 @@
 
   programs.gnupg.agent.enable = true;
 
+  services.envfs.enable = true;
+
   services.snapper = {
     configs.home = {
       SUBVOLUME = "/home";
@@ -158,6 +160,8 @@
 
   # Set external display as primary in GDM
   systemd.tmpfiles.rules = [ ''f+ /run/gdm/.config/monitors.xml - gdm gdm - <monitors version="2"> <configuration> <logicalmonitor> <x>0</x> <y>0</y> <scale>1</scale> <primary>yes</primary> <monitor> <monitorspec> <connector>HDMI-1</connector> <vendor>LEN</vendor> <product>LEN L23i-18</product> <serial>0x4d473634</serial> </monitorspec> <mode> <width>1920</width> <height>1080</height> <rate>74.986</rate> </mode> </monitor> </logicalmonitor> <disabled> <monitorspec> <connector>eDP-1</connector> <vendor>AUO</vendor> <product>0x20ec</product> <serial>0x00000000</serial> </monitorspec> </disabled> </configuration> </monitors>'' ];
+
+  systemd.services.NetworkManager-wait-online.enable = false;
 
   users.users.chika = {
     isNormalUser = true;
