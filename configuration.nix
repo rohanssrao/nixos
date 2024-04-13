@@ -54,10 +54,7 @@
     krita
     gnome-network-displays
 
-    (lib.hiPrio (writeShellScriptBin "python3" '' # nix-ld fix
-      export LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH
-      exec -a $0 ${python3}/bin/python3 "$@"
-    ''))
+    (lib.hiPrio (writeShellScriptBin "python3" '' export LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH; exec -a $0 ${python3}/bin/python3 "$@" '')) # nix-ld fix
 
     gnomeExtensions.arcmenu
     gnomeExtensions.appindicator
