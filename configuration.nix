@@ -24,13 +24,16 @@
     wireguard-tools
     adw-gtk3
     ddcutil
+    nvd
 
     burpsuite
+    vscode
+    microsoft-edge
+    obsidian
     blackbox-terminal
     gnome.dconf-editor
     gnome.gnome-tweaks
     btrfs-assistant
-    vscode
     vlc
     lutris
     calibre
@@ -40,9 +43,7 @@
     switcheroo
     obs-studio
     xournalpp
-    microsoft-edge
     vesktop
-    obsidian
     gcolor3
     meld
     libreoffice
@@ -54,7 +55,7 @@
     krita
     gnome-network-displays
 
-    (lib.hiPrio (writeShellScriptBin "python3" '' export LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH; exec -a $0 ${python3}/bin/python3 "$@" '')) # nix-ld fix
+    (lib.hiPrio (writeShellScriptBin "python3" ''LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH exec -a $0 ${python3}/bin/python3 "$@"'')) # nix-ld fix
 
     gnomeExtensions.arcmenu
     gnomeExtensions.appindicator
@@ -64,12 +65,9 @@
     gnomeExtensions.removable-drive-menu
   ];
 
-  imports = [ 
-    ./hardware-configuration.nix
-  ];
-
-  # Remove default GNOME extensions
-  environment.gnome.excludePackages = [ pkgs.gnome.gnome-shell-extensions ];
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
+  environment.gnome.excludePackages = with pkgs; [ gnome.gnome-shell-extensions epiphany ];
 
   programs.firefox = {
     enable = true;
@@ -113,16 +111,6 @@
 
   services.fwupd.enable = true;
 
-  services.xserver = {
-    enable = true;
-    displayManager.gdm.enable = true;
-    desktopManager.gnome.enable = true;
-    xkb = {
-      layout = "us";
-      variant = "";
-    };
-  };
-
   services.printing.enable = true;
 
   services.pipewire = {
@@ -130,6 +118,11 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+  };
+
+  services.xserver = {
+    enable = true;
+    xkb = { layout = "us"; variant = ""; };
   };
 
   fonts.fontconfig.useEmbeddedBitmaps = false;
@@ -158,6 +151,7 @@
   # Set external display as primary in GDM
   systemd.tmpfiles.rules = [ ''f+ /run/gdm/.config/monitors.xml - gdm gdm - <monitors version="2"> <configuration> <logicalmonitor> <x>0</x> <y>0</y> <scale>1</scale> <primary>yes</primary> <monitor> <monitorspec> <connector>HDMI-1</connector> <vendor>LEN</vendor> <product>LEN L23i-18</product> <serial>0x4d473634</serial> </monitorspec> <mode> <width>1920</width> <height>1080</height> <rate>74.986</rate> </mode> </monitor> </logicalmonitor> <disabled> <monitorspec> <connector>eDP-1</connector> <vendor>AUO</vendor> <product>0x20ec</product> <serial>0x00000000</serial> </monitorspec> </disabled> </configuration> </monitors>'' ];
 
+  # Sometimes kills rebuilds
   systemd.services.NetworkManager-wait-online.enable = false;
 
   users.users.chika = {
@@ -186,5 +180,9 @@
   nixpkgs.config.allowUnfree = true;
 
   system.stateVersion = "23.11";
+
+  imports = [ 
+    ./hardware-configuration.nix
+  ];
 
 }
