@@ -13,22 +13,16 @@
     ripgrep
     fd
     fzf
-    bat
-    tealdeer
-    compsize
-    spotdl 
     tmux
-    distrobox
     wireguard-tools
     adw-gtk3
     ddcutil
     nh
 
-    burpsuite
     vscode
     microsoft-edge
     obsidian
-    blackbox-terminal
+    kitty
     gnome.dconf-editor
     gnome.gnome-tweaks
     btrfs-assistant
@@ -50,7 +44,6 @@
     speedcrunch
     virt-manager
     virtiofsd
-    gnome-network-displays
 
     (lib.hiPrio (writeShellScriptBin "python3" ''LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH exec -a $0 ${python3}/bin/python3 "$@"'')) # nix-ld fix
 
@@ -62,8 +55,12 @@
     gnomeExtensions.removable-drive-menu
   ];
 
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
+  services.xserver = {
+    enable = true;
+    displayManager.gdm.enable = true;
+    desktopManager.gnome.enable = true;
+  };
+
   environment.gnome.excludePackages = with pkgs; [ gnome.gnome-shell-extensions epiphany ];
 
   programs.firefox = {
@@ -74,10 +71,7 @@
     });
   };
 
-  programs.fish = {
-    enable = true;
-    vendor.completions.enable = false;
-  };
+  programs.fish.enable = true;
 
   programs.neovim = {
     enable = true;
@@ -92,33 +86,35 @@
 
   programs.gnupg.agent.enable = true;
 
+  # Make normal binaries work
   programs.nix-ld = {
     enable = true;
     libraries = pkgs.steam-run.fhsenv.args.multiPkgs pkgs;
   };
 
-  services.envfs.enable = true;
-
-  services.snapper = {
-    configs.home = {
-      SUBVOLUME = "/home";
-      TIMELINE_CREATE = true;
-      TIMELINE_CLEANUP = true;
-      TIMELINE_LIMIT_HOURLY = 3;
-      TIMELINE_LIMIT_DAILY = 3;
-      TIMELINE_LIMIT_WEEKLY = 0;
-      TIMELINE_LIMIT_MONTHLY = 0;
-      TIMELINE_LIMIT_YEARLY = 0;
-    };
+  # btrfs snapshots
+  services.snapper.configs.home = {
+    SUBVOLUME = "/home";
+    TIMELINE_CREATE = true;
+    TIMELINE_CLEANUP = true;
+    TIMELINE_LIMIT_HOURLY = 3;
+    TIMELINE_LIMIT_DAILY = 3;
+    TIMELINE_LIMIT_WEEKLY = 0;
+    TIMELINE_LIMIT_MONTHLY = 0;
+    TIMELINE_LIMIT_YEARLY = 0;
   };
 
+  # Power saving (laptop)
   services.tlp.enable = true;
   services.power-profiles-daemon.enable = false;
 
+  # Firmware updates
   services.fwupd.enable = true;
 
-  services.printing.enable = true;
-
+  # Sound
+  sound.enable = true;
+  hardware.pulseaudio.enable = false;
+  security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -126,40 +122,36 @@
     pulse.enable = true;
   };
 
-  services.xserver = {
-    enable = true;
-    xkb = { layout = "us"; variant = ""; };
-  };
+  services.printing.enable = true;
 
+  # Fix Microsoft fonts at small sizes
   fonts.fontconfig.useEmbeddedBitmaps = false;
 
+  # VMs and containers
   virtualisation.libvirtd.enable = true;
   virtualisation.podman.enable = true;
   virtualisation.containers.enable = true;
 
-  sound.enable = true;
-  hardware.pulseaudio.enable = false;
+  # Graphics
+  hardware.opengl.enable = true;
+  hardware.opengl.driSupport32Bit = true;
 
-  security.rtkit.enable = true;
+  # Monitor brightness control
+  hardware.i2c.enable = true;
 
-  fileSystems."/".options = [ "subvol=@" "compress-force=zstd:3" ];
-  fileSystems."/home".options = [ "subvol=@home" "compress-force=zstd:3" ];
+  # Set external display as primary in GDM
+  systemd.tmpfiles.rules = [ ''C /run/gdm/.config/monitors.xml - gdm gdm - /home/chika/.config/monitors.xml'' ];
+
+  # Sometimes kills rebuilds
+  systemd.services.NetworkManager-wait-online.enable = false;
 
   zramSwap.enable = true;
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  hardware.opengl.enable = true;
-  hardware.opengl.driSupport32Bit = true;
-
-  hardware.i2c.enable = true; # Monitor brightness control
-
-  # Set external display as primary in GDM
-  systemd.tmpfiles.rules = [ ''f+ /run/gdm/.config/monitors.xml - gdm gdm - <monitors version="2"> <configuration> <logicalmonitor> <x>0</x> <y>0</y> <scale>1</scale> <primary>yes</primary> <monitor> <monitorspec> <connector>HDMI-1</connector> <vendor>LEN</vendor> <product>LEN L23i-18</product> <serial>0x4d473634</serial> </monitorspec> <mode> <width>1920</width> <height>1080</height> <rate>74.986</rate> </mode> </monitor> </logicalmonitor> <disabled> <monitorspec> <connector>eDP-1</connector> <vendor>AUO</vendor> <product>0x20ec</product> <serial>0x00000000</serial> </monitorspec> </disabled> </configuration> </monitors>'' ];
-
-  # Sometimes kills rebuilds
-  systemd.services.NetworkManager-wait-online.enable = false;
+  fileSystems."/".options = [ "subvol=@" "compress-force=zstd:3" ];
+  fileSystems."/home".options = [ "subvol=@home" "compress-force=zstd:3" ];
 
   users.users.chika = {
     isNormalUser = true;
@@ -168,15 +160,13 @@
     shell = pkgs.fish;
   };
 
-  networking.hostName = "nixos";
   networking.networkmanager.enable = true;
+  networking.hostName = "nixos";
 
   time.timeZone = "America/New_York";
 
-  i18n.defaultLocale = "en_US.UTF-8";
-
   nix = {
-    optimise.automatic = true;
+    optimise.automatic = true; # hard link
     gc.automatic = true;
     gc.options = "--delete-older-than 5d";
     extraOptions = ''
