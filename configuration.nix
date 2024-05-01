@@ -2,9 +2,7 @@
 
 {
   environment.systemPackages = with pkgs; [
-    fish
     vim
-    lunarvim
     git
     python3
     wget
@@ -76,6 +74,17 @@
     });
   };
 
+  programs.fish = {
+    enable = true;
+    vendor.completions.enable = false;
+  };
+
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+    vimAlias = true;
+  };
+
   programs.kdeconnect = {
     enable = true;
     package = pkgs.gnomeExtensions.gsconnect;
@@ -85,7 +94,7 @@
 
   programs.nix-ld = {
     enable = true;
-    libraries = with pkgs; [ zstd stdenv.cc.cc libssh libxml2 acl libsodium util-linux xz systemd xorg.libXcomposite xorg.libXtst xorg.libXrandr xorg.libXext xorg.libX11 xorg.libXfixes libGL libva pipewire harfbuzz libthai pango lsof file mesa.llvmPackages.llvm.lib vulkan-loader expat wayland xorg.libxcb xorg.libXdamage xorg.libxshmfence xorg.libXxf86vm libelf (lib.getLib elfutils) xorg.libXinerama xorg.libXcursor xorg.libXrender xorg.libXScrnSaver xorg.libXi xorg.libSM xorg.libICE gnome2.GConf curlWithGnuTls nspr nss cups libcap SDL2 libusb1 dbus-glib gsettings-desktop-schemas ffmpeg libudev0-shim fontconfig freetype xorg.libXt xorg.libXmu libogg libvorbis SDL SDL2_image glew110 libdrm libidn tbb zlib udev dbus glib gtk2 bzip2 flac freeglut libjpeg libpng libpng12 libsamplerate libmikmod libtheora libtiff pixman speex SDL_image SDL_ttf SDL_mixer SDL2_ttf SDL2_mixer libappindicator-gtk2 libdbusmenu-gtk2 libindicator-gtk2 libcaca libcanberra libgcrypt libunwind libvpx librsvg xorg.libXft libvdpau attr at-spi2-atk at-spi2-core gst_all_1.gstreamer gst_all_1.gst-plugins-ugly gst_all_1.gst-plugins-base json-glib libxkbcommon libxcrypt mono ncurses openssl xorg.xkeyboardconfig xorg.libpciaccess icu gtk3 atk cairo gdk-pixbuf libGLU libuuid libbsd alsa-lib libidn2 libpsl nghttp2.lib rtmpdump libgpg-error libpulseaudio openalSoft libva1 gcc.cc.lib glibc linux-pam sane-backends fuse ];
+    libraries = pkgs.steam-run.fhsenv.args.multiPkgs pkgs;
   };
 
   services.envfs.enable = true;
@@ -156,6 +165,7 @@
     isNormalUser = true;
     description = "Rohan";
     extraGroups = [ "networkmanager" "wheel" "i2c" ];
+    shell = pkgs.fish;
   };
 
   networking.hostName = "nixos";
