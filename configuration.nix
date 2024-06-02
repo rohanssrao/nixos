@@ -2,6 +2,7 @@
 
 {
   environment.systemPackages = with pkgs; [
+    fish
     vim
     git
     python3
@@ -70,8 +71,6 @@
       sha256 = "1mx679fbc4d9x4bnqajqx5a95y1lfasvf90pbqkh9sm3ch945p40";
     });
   };
-
-  programs.fish.enable = true;
 
   programs.neovim = {
     enable = true;
@@ -157,7 +156,7 @@
     isNormalUser = true;
     description = "Rohan";
     extraGroups = [ "networkmanager" "wheel" "i2c" ];
-    shell = pkgs.fish;
+    shell = "${pkgs.fish}/bin/fish";
   };
 
   networking.networkmanager.enable = true;
