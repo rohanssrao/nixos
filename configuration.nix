@@ -2,7 +2,6 @@
 
 {
   environment.systemPackages = with pkgs; [
-    fish
     vim
     git
     python3
@@ -21,12 +20,13 @@
     nh
 
     vscode
-    microsoft-edge
     obsidian
-    kitty
+    microsoft-edge
+    wezterm
     gnome.dconf-editor
     gnome.gnome-tweaks
     btrfs-assistant
+    solaar
     vlc
     lutris
     calibre
@@ -54,13 +54,13 @@
     gnomeExtensions.disable-workspace-animation
     gnomeExtensions.just-perfection
     gnomeExtensions.removable-drive-menu
+    gnomeExtensions.solaar-extension
+    gnomeExtensions.bluetooth-battery-meter
   ];
 
-  services.xserver = {
-    enable = true;
-    displayManager.gdm.enable = true;
-    desktopManager.gnome.enable = true;
-  };
+  services.xserver.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
 
   environment.gnome.excludePackages = with pkgs; [ gnome.gnome-shell-extensions epiphany ];
 
@@ -71,6 +71,8 @@
       sha256 = "1mx679fbc4d9x4bnqajqx5a95y1lfasvf90pbqkh9sm3ch945p40";
     });
   };
+
+  programs.fish.enable = true;
 
   programs.neovim = {
     enable = true;
@@ -103,7 +105,7 @@
     TIMELINE_LIMIT_YEARLY = 0;
   };
 
-  # Power saving (laptop)
+  # Power saving
   services.tlp.enable = true;
   services.power-profiles-daemon.enable = false;
 
@@ -121,10 +123,21 @@
     pulse.enable = true;
   };
 
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  hardware.bluetooth.settings.General.Experimental = "true";
+
+  hardware.logitech.wireless.enable = true;
+
   services.printing.enable = true;
 
   # Fix Microsoft fonts at small sizes
   fonts.fontconfig.useEmbeddedBitmaps = false;
+
+  # Fix Calibre viewer in HiDPI
+  environment.sessionVariables = {
+    QT_SCALE_FACTOR_ROUNDING_POLICY = "RoundPreferFloor";
+  };
 
   # VMs and containers
   virtualisation.libvirtd.enable = true;
@@ -156,7 +169,7 @@
     isNormalUser = true;
     description = "Rohan";
     extraGroups = [ "networkmanager" "wheel" "i2c" ];
-    shell = "${pkgs.fish}/bin/fish";
+    shell = pkgs.fish;
   };
 
   networking.networkmanager.enable = true;
