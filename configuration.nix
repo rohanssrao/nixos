@@ -19,9 +19,9 @@
     ddcutil
     nh
 
-    vscode
-    obsidian
-    microsoft-edge
+    vscodium
+    brave
+    signal-desktop
     wezterm
     gnome.dconf-editor
     gnome.gnome-tweaks
@@ -32,15 +32,9 @@
     calibre
     drawing
     krita
-    obs-studio
-    pdfarranger
-    video-trimmer
-    switcheroo
     vesktop
     gcolor3
-    meld
     libreoffice
-    tor-browser
     qbittorrent
     speedcrunch
     virt-manager
@@ -93,16 +87,19 @@
     libraries = pkgs.steam-run.fhsenv.args.multiPkgs pkgs;
   };
 
+  # Access binaries from /bin and /usr/bin
+  services.envfs.enable = true;
+
   # btrfs snapshots
   services.snapper.configs.home = {
     SUBVOLUME = "/home";
     TIMELINE_CREATE = true;
     TIMELINE_CLEANUP = true;
-    TIMELINE_LIMIT_HOURLY = 3;
-    TIMELINE_LIMIT_DAILY = 3;
-    TIMELINE_LIMIT_WEEKLY = 0;
-    TIMELINE_LIMIT_MONTHLY = 0;
-    TIMELINE_LIMIT_YEARLY = 0;
+    TIMELINE_LIMIT_HOURLY = "3";
+    TIMELINE_LIMIT_DAILY = "3";
+    TIMELINE_LIMIT_WEEKLY = "0";
+    TIMELINE_LIMIT_MONTHLY = "0";
+    TIMELINE_LIMIT_YEARLY = "0";
   };
 
   # Power saving
@@ -113,7 +110,6 @@
   services.fwupd.enable = true;
 
   # Sound
-  sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -134,9 +130,9 @@
   # Fix Microsoft fonts at small sizes
   fonts.fontconfig.useEmbeddedBitmaps = false;
 
-  # Fix Calibre viewer in HiDPI
   environment.sessionVariables = {
-    QT_SCALE_FACTOR_ROUNDING_POLICY = "RoundPreferFloor";
+    QT_SCALE_FACTOR_ROUNDING_POLICY = "RoundPreferFloor"; # Fix Calibre viewer in HiDPI
+    ELECTRON_OZONE_PLATFORM_HINT = "auto"; # Make Electron apps use Wayland
   };
 
   # VMs and containers
