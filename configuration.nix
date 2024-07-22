@@ -5,7 +5,6 @@
     vim
     git
     python3
-    wget
     curl
     xclip
     gcc
@@ -13,8 +12,6 @@
     ripgrep
     fd
     fzf
-    tmux
-    wireguard-tools
     adw-gtk3
     ddcutil
     nh
@@ -23,7 +20,6 @@
     brave
     signal-desktop
     wezterm
-    gnome.dconf-editor
     gnome.gnome-tweaks
     btrfs-assistant
     solaar
@@ -35,7 +31,6 @@
     vesktop
     gcolor3
     libreoffice
-    qbittorrent
     speedcrunch
     virt-manager
     virtiofsd
@@ -90,26 +85,22 @@
   # Access binaries from /bin and /usr/bin
   services.envfs.enable = true;
 
-  # btrfs snapshots
   services.snapper.configs.home = {
     SUBVOLUME = "/home";
     TIMELINE_CREATE = true;
     TIMELINE_CLEANUP = true;
-    TIMELINE_LIMIT_HOURLY = "3";
-    TIMELINE_LIMIT_DAILY = "3";
-    TIMELINE_LIMIT_WEEKLY = "0";
-    TIMELINE_LIMIT_MONTHLY = "0";
-    TIMELINE_LIMIT_YEARLY = "0";
+    TIMELINE_LIMIT_HOURLY = 3;
+    TIMELINE_LIMIT_DAILY = 3;
+    TIMELINE_LIMIT_WEEKLY = 0;
+    TIMELINE_LIMIT_MONTHLY = 0;
+    TIMELINE_LIMIT_YEARLY = 0;
   };
 
-  # Power saving
   services.tlp.enable = true;
   services.power-profiles-daemon.enable = false;
 
-  # Firmware updates
   services.fwupd.enable = true;
 
-  # Sound
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -118,10 +109,6 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
-  hardware.bluetooth.settings.General.Experimental = "true";
 
   hardware.logitech.wireless.enable = true;
 
@@ -132,7 +119,9 @@
 
   environment.sessionVariables = {
     QT_SCALE_FACTOR_ROUNDING_POLICY = "RoundPreferFloor"; # Fix Calibre viewer in HiDPI
+    QT_QPA_PLATFORM = "wayland"; # Make Qt apps use Wayland
     ELECTRON_OZONE_PLATFORM_HINT = "auto"; # Make Electron apps use Wayland
+    ENVFS_RESOLVE_ALWAYS = "1"; # Resolve binaries in /bin and /usr/bin
   };
 
   # VMs and containers
@@ -147,11 +136,19 @@
   # Monitor brightness control
   hardware.i2c.enable = true;
 
-  # Set external display as primary in GDM
-  systemd.tmpfiles.rules = [ ''C /run/gdm/.config/monitors.xml - gdm gdm - /home/chika/.config/monitors.xml'' ];
-
-  # Sometimes kills rebuilds
-  systemd.services.NetworkManager-wait-online.enable = false;
+  systemd.services.protonvpn-autostart = {
+    description = "ProtonVPN autoconnect";
+    after = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" ];
+    wantedBy = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" ];
+    requires = [ "network-online.target" ];
+    serviceConfig = {
+      Environment = "PATH=/run/current-system/sw/bin";
+      Type = "forking";
+      ExecStartPre = "/bin/sh -c 'ping -c 1 -W 0 1.1.1.1 &> /dev/null'";
+      ExecStart = "/bin/sh -c 'nmcli con up id ProtonVPN'";
+      User = "chika";
+    };
+  };
 
   zramSwap.enable = true;
 
