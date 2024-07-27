@@ -82,9 +82,6 @@
     libraries = pkgs.steam-run.fhsenv.args.multiPkgs pkgs;
   };
 
-  # Access binaries from /bin and /usr/bin
-  services.envfs.enable = true;
-
   services.snapper.configs.home = {
     SUBVOLUME = "/home";
     TIMELINE_CREATE = true;
@@ -121,7 +118,6 @@
     QT_SCALE_FACTOR_ROUNDING_POLICY = "RoundPreferFloor"; # Fix Calibre viewer in HiDPI
     QT_QPA_PLATFORM = "wayland"; # Make Qt apps use Wayland
     ELECTRON_OZONE_PLATFORM_HINT = "auto"; # Make Electron apps use Wayland
-    ENVFS_RESOLVE_ALWAYS = "1"; # Resolve binaries in /bin and /usr/bin
   };
 
   # VMs and containers
@@ -138,13 +134,13 @@
 
   systemd.services.protonvpn-autostart = {
     description = "ProtonVPN autoconnect";
-    after = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" ];
-    wantedBy = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" ];
+    after = [ "suspend.target" "multi-user.target" ];
+    wantedBy = [ "suspend.target" "multi-user.target" ];
     requires = [ "network-online.target" ];
     serviceConfig = {
       Environment = "PATH=/run/current-system/sw/bin";
       Type = "forking";
-      ExecStartPre = "/bin/sh -c 'ping -c 1 -W 0 1.1.1.1 &> /dev/null'";
+      ExecStartPre = "/bin/sh -c 'until ping -c 1 -W 0 1.1.1.1 &> /dev/null; do sleep 1; done'";
       ExecStart = "/bin/sh -c 'nmcli con up id ProtonVPN'";
       User = "chika";
     };
@@ -160,7 +156,7 @@
 
   users.users.chika = {
     isNormalUser = true;
-    description = "Rohan";
+    description = "Chika";
     extraGroups = [ "networkmanager" "wheel" "i2c" ];
     shell = pkgs.fish;
   };
