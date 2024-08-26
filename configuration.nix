@@ -1,4 +1,4 @@
-{ self, config, pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   environment.systemPackages = with pkgs; [
@@ -16,11 +16,11 @@
     ddcutil
     nh
 
-    vscodium
     brave
+    vscodium
     signal-desktop
     wezterm
-    gnome.gnome-tweaks
+    gnome-tweaks
     btrfs-assistant
     solaar
     vlc
@@ -93,9 +93,6 @@
     TIMELINE_LIMIT_YEARLY = 0;
   };
 
-  services.tlp.enable = true;
-  services.power-profiles-daemon.enable = false;
-
   services.fwupd.enable = true;
 
   hardware.pulseaudio.enable = false;
@@ -120,31 +117,17 @@
     ELECTRON_OZONE_PLATFORM_HINT = "auto"; # Make Electron apps use Wayland
   };
 
-  # VMs and containers
   virtualisation.libvirtd.enable = true;
   virtualisation.podman.enable = true;
   virtualisation.containers.enable = true;
 
-  # Graphics
-  hardware.opengl.enable = true;
-  hardware.opengl.driSupport32Bit = true;
+  hardware.graphics.enable = true;
+  hardware.graphics.enable32Bit = true;
 
   # Monitor brightness control
   hardware.i2c.enable = true;
 
-  systemd.services.protonvpn-autostart = {
-    description = "ProtonVPN autoconnect";
-    after = [ "suspend.target" "multi-user.target" ];
-    wantedBy = [ "suspend.target" "multi-user.target" ];
-    requires = [ "network-online.target" ];
-    serviceConfig = {
-      Environment = "PATH=/run/current-system/sw/bin";
-      Type = "forking";
-      ExecStartPre = "/bin/sh -c 'until ping -c 1 -W 0 1.1.1.1 &> /dev/null; do sleep 1; done'";
-      ExecStart = "/bin/sh -c 'nmcli con up id ProtonVPN'";
-      User = "chika";
-    };
-  };
+  services.cloudflare-warp.enable = true;
 
   zramSwap.enable = true;
 
