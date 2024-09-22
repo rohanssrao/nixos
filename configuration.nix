@@ -16,7 +16,7 @@
     ddcutil
     nh
 
-    brave
+    chromium
     vscodium
     signal-desktop
     wezterm
