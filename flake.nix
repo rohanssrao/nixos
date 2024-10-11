@@ -3,19 +3,17 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    wezterm = {
+      url = "github:wez/wezterm/main?dir=nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, ... }@inputs:
-    let
+  outputs = { self, nixpkgs, ... }@inputs: {
+    nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in
-    {
-      nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs; };
-        modules = [
-          ./configuration.nix
-        ];
-      };
+      specialArgs = { inherit inputs; };
+      modules = [ ./configuration.nix ];
     };
+  };
 }

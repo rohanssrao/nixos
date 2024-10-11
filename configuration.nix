@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   environment.systemPackages = with pkgs; [
@@ -19,7 +19,7 @@
     chromium
     vscodium
     signal-desktop
-    wezterm
+    inputs.wezterm.packages.${pkgs.system}.default
     gnome-tweaks
     btrfs-assistant
     solaar
@@ -51,7 +51,7 @@
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
 
-  environment.gnome.excludePackages = with pkgs; [ gnome.gnome-shell-extensions epiphany ];
+  environment.gnome.excludePackages = with pkgs; [ gnome-shell-extensions epiphany ];
 
   programs.firefox = {
     enable = true;
