@@ -1,15 +1,16 @@
 {
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  outputs = { self, nixpkgs }: {
+  outputs = { self, nixpkgs, ... }@inputs: {
     nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         ({ pkgs, ... }: {
 
           environment.systemPackages = with pkgs; [
-            vim
+            nh
             git
             python3
+            uv
             curl
             xclip
             gcc
@@ -19,11 +20,10 @@
             fzf
             adw-gtk3
             ddcutil
-            nh
 
             kitty
             chromium
-            vscodium
+            zed-editor
             lutris
             vlc
             libreoffice
@@ -38,7 +38,7 @@
             drawing
             gcolor3
 
-            (lib.hiPrio (writeShellScriptBin "python3" ''LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH exec -a $0 ${python3}/bin/python3 "$@"'')) # nix-ld fix
+            (lib.hiPrio (writeShellScriptBin "python" ''LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH exec -a $0 ${python3}/bin/python3 "$@"'')) # nix-ld fix
 
             gnomeExtensions.arcmenu
             gnomeExtensions.appindicator
@@ -82,7 +82,7 @@
           # Make normal binaries work
           programs.nix-ld = {
             enable = true;
-            libraries = pkgs.steam-run.fhsenv.args.multiPkgs pkgs;
+            libraries = pkgs.steam-run.args.multiPkgs pkgs;
           };
 
           services.cloudflare-warp.enable = true;
