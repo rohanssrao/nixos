@@ -48,6 +48,7 @@
             gnomeExtensions.removable-drive-menu
             gnomeExtensions.solaar-extension
             gnomeExtensions.bluetooth-battery-meter
+            gnomeExtensions.rounded-window-corners-reborn
           ];
 
           services.xserver.enable = true;
