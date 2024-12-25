@@ -1,9 +1,13 @@
 {
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  outputs = { self, nixpkgs, ... }@inputs: {
+  inputs.disko.url = "github:nix-community/disko/latest";
+  inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
+
+  outputs = { self, disko, nixpkgs }@inputs: {
     nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
+      
         ({ pkgs, ... }: {
 
           environment.systemPackages = with pkgs; [
@@ -23,7 +27,7 @@
 
             kitty
             chromium
-            zed-editor
+            vscodium
             lutris
             vlc
             libreoffice
@@ -38,7 +42,7 @@
             drawing
             gcolor3
 
-            (lib.hiPrio (writeShellScriptBin "python" ''LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH exec -a $0 ${python3}/bin/python3 "$@"'')) # nix-ld fix
+            (lib.hiPrio (writeShellScriptBin "python" ''LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH exec -a $0 ${lib.getExe python3} "$@"'')) # nix-ld fix
 
             gnomeExtensions.arcmenu
             gnomeExtensions.appindicator
@@ -66,6 +70,8 @@
           };
 
           programs.fish.enable = true;
+
+          programs.command-not-found.enable = false;
 
           programs.neovim = {
             enable = true;
@@ -117,12 +123,6 @@
           # Fix Microsoft fonts at small sizes
           fonts.fontconfig.useEmbeddedBitmaps = false;
 
-          environment.sessionVariables = {
-            QT_SCALE_FACTOR_ROUNDING_POLICY = "RoundPreferFloor"; # Fix Calibre viewer in HiDPI
-            QT_QPA_PLATFORM = "wayland"; # Make Qt apps use Wayland
-            ELECTRON_OZONE_PLATFORM_HINT = "auto"; # Make Electron apps use Wayland
-          };
-
           virtualisation.podman.enable = true;
           virtualisation.containers.enable = true;
 
@@ -137,20 +137,18 @@
           boot.loader.systemd-boot.enable = true;
           boot.loader.efi.canTouchEfiVariables = true;
 
-          fileSystems."/".options = [ "subvol=@" "compress-force=zstd:3" ];
-          fileSystems."/home".options = [ "subvol=@home" "compress-force=zstd:3" ];
+          time.timeZone = "America/New_York";
+
+          networking.networkmanager.enable = true;
+          networking.hostName = "nixos";
 
           users.users.chika = {
             isNormalUser = true;
             description = "Chika";
             extraGroups = [ "networkmanager" "wheel" "i2c" ];
             shell = pkgs.fish;
+            hashedPassword = "$y$j9T$y0RtVrfPUu49GvNhTuRFT0$IhXJgc3GAuxzokygUoqKLwsy2T/7L0eMs4pjgfMWLe1";
           };
-
-          networking.networkmanager.enable = true;
-          networking.hostName = "nixos";
-
-          time.timeZone = "America/New_York";
 
           nix = {
             optimise.automatic = true; # hard link
@@ -171,6 +169,51 @@
           ];
 
         })
+
+        # git clone git@github.com:rohanssrao/nixos.git /tmp/config/etc/nixos
+        # cd /tmp/config/etc/nixos
+        # nixos-generate-config --show-hardware-config --no-filesystems > hardware-configuration.nix
+        # lsblk
+        # sudo nix run 'github:nix-community/disko/latest#disko-install' -- --flake . --write-efi-boot-entries --disk main /dev/replaceme
+        disko.nixosModules.disko {
+          disko.devices.disk.main = {
+            type = "disk";
+            device = "/dev/replaceme";
+            content = {
+              type = "gpt";
+              partitions = {
+                ESP = {
+                  priority = 1;
+                  size = "1024M";
+                  type = "EF00";
+                  content = {
+                    type = "filesystem";
+                    format = "vfat";
+                    mountpoint = "/boot";
+                  };
+                };
+                root = {
+                  size = "100%";
+                  content = {
+                    type = "btrfs";
+                    extraArgs = [ "-f" ];
+                    subvolumes = {
+                      "@" = {
+                        mountpoint = "/";
+                        mountOptions = [ "compress-force=zstd" "noatime" ];
+                      };
+                      "@home" = {
+                        mountpoint = "/home";
+                        mountOptions = [ "compress-force=zstd" "noatime" ];
+                      };
+                    };
+                  };
+                };
+              };
+            };
+          };
+        }
+
       ];
     };
   };
