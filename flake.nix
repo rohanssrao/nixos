@@ -2,14 +2,13 @@
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.disko.url = "github:nix-community/disko/latest";
   inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.ghostty.url = "github:ghostty-org/ghostty";
 
-  outputs = { self, disko, nixpkgs }@inputs: {
+  outputs = { self, nixpkgs, disko, ghostty }@inputs: {
     nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
-      
         ({ pkgs, ... }: {
-
           environment.systemPackages = with pkgs; [
             nh
             git
@@ -25,7 +24,7 @@
             adw-gtk3
             ddcutil
 
-            kitty
+            ghostty.packages.x86_64-linux.default
             chromium
             vscodium
             lutris
@@ -52,7 +51,6 @@
             gnomeExtensions.removable-drive-menu
             gnomeExtensions.solaar-extension
             gnomeExtensions.bluetooth-battery-meter
-            gnomeExtensions.rounded-window-corners-reborn
           ];
 
           services.xserver.enable = true;
@@ -174,7 +172,7 @@
         # cd /tmp/config/etc/nixos
         # nixos-generate-config --show-hardware-config --no-filesystems > hardware-configuration.nix
         # lsblk
-        # sudo nix run 'github:nix-community/disko/latest#disko-install' -- --flake . --write-efi-boot-entries --disk main /dev/replaceme
+        # sudo nix --experimental-features 'nix-command flakes' run 'github:nix-community/disko/latest#disko-install' -- --flake .#nixos --write-efi-boot-entries --disk main /dev/replaceme
         disko.nixosModules.disko {
           disko.devices.disk.main = {
             type = "disk";
