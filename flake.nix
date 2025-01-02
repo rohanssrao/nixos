@@ -2,10 +2,9 @@
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.disko.url = "github:nix-community/disko/latest";
   inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.ghostty.url = "github:ghostty-org/ghostty";
 
-  outputs = { self, nixpkgs, disko, ghostty }@inputs: {
-    nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
+  outputs = { ... }@inputs: {
+    nixosConfigurations."nixos" = inputs.nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         ({ pkgs, ... }: {
@@ -24,9 +23,10 @@
             adw-gtk3
             ddcutil
 
-            ghostty.packages.x86_64-linux.default
+            ghostty
             chromium
             vscodium
+            obsidian
             lutris
             vlc
             libreoffice
@@ -59,6 +59,8 @@
 
           environment.gnome.excludePackages = with pkgs; [ gnome-shell-extensions epiphany ];
 
+          environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
           programs.firefox = {
             enable = true;
             autoConfig = builtins.readFile(builtins.fetchurl {  
@@ -68,6 +70,8 @@
           };
 
           programs.fish.enable = true;
+
+          documentation.man.generateCaches = false;
 
           programs.command-not-found.enable = false;
 
@@ -103,28 +107,20 @@
             TIMELINE_LIMIT_YEARLY = 0;
           };
 
-          services.fwupd.enable = true;
+          systemd.tmpfiles.rules = [
+            "v /home/.snapshots 0700 root root"
+            "Z /etc/nixos 0755"
+          ];
 
-          hardware.pulseaudio.enable = false;
-          security.rtkit.enable = true;
-          services.pipewire = {
-            enable = true;
-            alsa.enable = true;
-            alsa.support32Bit = true;
-            pulse.enable = true;
-          };
+          services.fwupd.enable = true;
 
           hardware.logitech.wireless.enable = true;
 
           services.printing.enable = true;
 
-          # Fix Microsoft fonts at small sizes
-          fonts.fontconfig.useEmbeddedBitmaps = false;
-
           virtualisation.podman.enable = true;
-          virtualisation.containers.enable = true;
+          virtualisation.podman.dockerCompat = true;
 
-          hardware.graphics.enable = true;
           hardware.graphics.enable32Bit = true;
 
           # Monitor brightness control
@@ -137,7 +133,6 @@
 
           time.timeZone = "America/New_York";
 
-          networking.networkmanager.enable = true;
           networking.hostName = "nixos";
 
           users.users.chika = {
@@ -173,7 +168,7 @@
         # nixos-generate-config --show-hardware-config --no-filesystems > hardware-configuration.nix
         # lsblk
         # sudo nix --experimental-features 'nix-command flakes' run 'github:nix-community/disko/latest#disko-install' -- --flake .#nixos --write-efi-boot-entries --disk main /dev/replaceme
-        disko.nixosModules.disko {
+        inputs.disko.nixosModules.disko {
           disko.devices.disk.main = {
             type = "disk";
             device = "/dev/replaceme";
