@@ -28,6 +28,7 @@
             vscodium
             obsidian
             lutris
+            steam
             vlc
             libreoffice
             vesktop
@@ -188,18 +189,23 @@
                 root = {
                   size = "100%";
                   content = {
-                    type = "btrfs";
-                    extraArgs = [ "-f" ];
-                    subvolumes = {
-                      "@" = {
-                        mountpoint = "/";
-                        mountOptions = [ "compress-force=zstd" "noatime" ];
+                    # type = "luks";
+                    # name = "crypted";
+                    # settings.allowDiscards = true;
+                    # content = {
+                      type = "btrfs";
+                      extraArgs = [ "-f" ];
+                      subvolumes = {
+                        "@" = {
+                          mountpoint = "/";
+                          mountOptions = [ "compress-force=zstd" "noatime" ];
+                        };
+                        "@home" = {
+                          mountpoint = "/home";
+                          mountOptions = [ "compress-force=zstd" "noatime" ];
+                        };
                       };
-                      "@home" = {
-                        mountpoint = "/home";
-                        mountOptions = [ "compress-force=zstd" "noatime" ];
-                      };
-                    };
+                    # };
                   };
                 };
               };
