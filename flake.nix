@@ -25,6 +25,8 @@
 
             ghostty
             chromium
+            tor-browser
+            signal-desktop
             vscodium
             obsidian
             lutris
@@ -49,6 +51,7 @@
             gnomeExtensions.brightness-control-using-ddcutil
             gnomeExtensions.disable-workspace-animation
             gnomeExtensions.just-perfection
+            gnomeExtensions.rounded-window-corners-reborn
             gnomeExtensions.removable-drive-menu
             gnomeExtensions.solaar-extension
             gnomeExtensions.bluetooth-battery-meter
@@ -93,6 +96,14 @@
           programs.nix-ld = {
             enable = true;
             libraries = pkgs.steam-run.args.multiPkgs pkgs;
+          };
+
+          # http://localhost:8384
+          services.syncthing = {
+            enable = true;
+            user = "chika";
+            dataDir = "/home/chika";
+            openDefaultPorts = true;
           };
 
           services.cloudflare-warp.enable = true;
