@@ -10,10 +10,10 @@
         ({ pkgs, ... }: {
           environment.systemPackages = with pkgs; [
             nh
+            curl
             git
             python3
             uv
-            curl
             xclip
             gcc
             eza
@@ -30,7 +30,6 @@
             vscode
             obsidian
             lutris
-            steam
             vlc
             libreoffice
             vesktop
@@ -39,10 +38,8 @@
             gnome-tweaks
             btrfs-assistant
             solaar
-            calibre
             krita
             drawing
-            gcolor3
 
             (lib.hiPrio (writeShellScriptBin "python" ''LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH exec -a $0 ${lib.getExe python3} "$@"'')) # nix-ld fix
 
