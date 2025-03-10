@@ -27,7 +27,7 @@
             chromium
             tor-browser
             signal-desktop
-            vscodium
+            vscode
             obsidian
             lutris
             steam
@@ -53,7 +53,6 @@
             gnomeExtensions.just-perfection
             gnomeExtensions.rounded-window-corners-reborn
             gnomeExtensions.removable-drive-menu
-            gnomeExtensions.solaar-extension
             gnomeExtensions.bluetooth-battery-meter
           ];
 
