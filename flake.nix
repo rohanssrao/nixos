@@ -171,7 +171,7 @@
 
         })
 
-        # git clone git@github.com:rohanssrao/nixos.git /tmp/config/etc/nixos
+        # git clone https://github.com/rohanssrao/nixos.git /tmp/config/etc/nixos
         # cd /tmp/config/etc/nixos
         # nixos-generate-config --show-hardware-config --no-filesystems > hardware-configuration.nix
         # lsblk
