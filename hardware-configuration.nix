@@ -8,27 +8,10 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "usbhid" ];
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "usbhid" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
+  boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
-
-  fileSystems."/" =
-    { device = "/dev/disk/by-partlabel/disk-main-root";
-      fsType = "btrfs";
-      options = [ "subvol=@" "compress-force=zstd" "noatime" ];
-    };
-
-  fileSystems."/home" =
-    { device = "/dev/disk/by-partlabel/disk-main-root";
-      fsType = "btrfs";
-      options = [ "subvol=@home" "compress-force=zstd" "noatime" ];
-    };
-
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-partlabel/disk-main-ESP";
-      fsType = "vfat";
-    };
 
   swapDevices = [ ];
 
@@ -37,6 +20,7 @@
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
+  # networking.interfaces.CloudflareWARP.useDHCP = lib.mkDefault true;
   # networking.interfaces.eno1.useDHCP = lib.mkDefault true;
   # networking.interfaces.wlo1.useDHCP = lib.mkDefault true;
 

@@ -1,7 +1,10 @@
 {
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  inputs.disko.url = "github:nix-community/disko/latest";
-  inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    disko.url = "github:nix-community/disko/latest";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
+  };
 
   outputs = { ... }@inputs: {
     nixosConfigurations."nixos" = inputs.nixpkgs.lib.nixosSystem {
@@ -147,6 +150,7 @@
             isNormalUser = true;
             description = "Chika";
             extraGroups = [ "networkmanager" "wheel" "i2c" ];
+            uid = 1000;
             shell = pkgs.fish;
             hashedPassword = "$y$j9T$y0RtVrfPUu49GvNhTuRFT0$IhXJgc3GAuxzokygUoqKLwsy2T/7L0eMs4pjgfMWLe1";
           };
@@ -174,12 +178,12 @@
         # git clone https://github.com/rohanssrao/nixos.git /tmp/config/etc/nixos
         # cd /tmp/config/etc/nixos
         # nixos-generate-config --show-hardware-config --no-filesystems > hardware-configuration.nix
-        # lsblk
-        # sudo nix --experimental-features 'nix-command flakes' run 'github:nix-community/disko/latest#disko-install' -- --flake .#nixos --write-efi-boot-entries --disk main /dev/replaceme
+        # sudo disko --mode disko --flake .#nixos
+        # sudo nixos-install --no-channel-copy --no-root-password --flake .#nixos
         inputs.disko.nixosModules.disko {
           disko.devices.disk.main = {
             type = "disk";
-            device = "/dev/replaceme";
+            device = "/dev/nvme0n1";
             content = {
               type = "gpt";
               partitions = {
@@ -196,10 +200,10 @@
                 root = {
                   size = "100%";
                   content = {
-                    # type = "luks";
-                    # name = "crypted";
-                    # settings.allowDiscards = true;
-                    # content = {
+                    type = "luks";
+                    name = "crypted";
+                    settings.allowDiscards = true;
+                    content = {
                       type = "btrfs";
                       extraArgs = [ "-f" ];
                       subvolumes = {
@@ -212,7 +216,7 @@
                           mountOptions = [ "compress-force=zstd" "noatime" ];
                         };
                       };
-                    # };
+                    };
                   };
                 };
               };
