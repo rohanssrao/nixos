@@ -13,6 +13,7 @@
         ({ pkgs, ... }: {
           environment.systemPackages = with pkgs; [
             nh
+            nix-search-cli
             curl
             git
             python3
@@ -26,13 +27,12 @@
             adw-gtk3
             ddcutil
 
+            steam
             ghostty
             chromium
-            tor-browser
             signal-desktop
             vscode
             obsidian
-            lutris
             vlc
             libreoffice
             vesktop
@@ -56,9 +56,8 @@
             gnomeExtensions.bluetooth-battery-meter
           ];
 
-          services.xserver.enable = true;
-          services.xserver.displayManager.gdm.enable = true;
-          services.xserver.desktopManager.gnome.enable = true;
+          services.displayManager.gdm.enable = true;
+          services.desktopManager.gnome.enable = true;
 
           environment.gnome.excludePackages = with pkgs; [ gnome-shell-extensions epiphany ];
 
@@ -66,6 +65,7 @@
 
           programs.firefox = {
             enable = true;
+            package = pkgs.librewolf;
             autoConfig = builtins.readFile(builtins.fetchurl {  
               url = "https://raw.githubusercontent.com/MrOtherGuy/fx-autoconfig/master/program/config.js";
               sha256 = "1mx679fbc4d9x4bnqajqx5a95y1lfasvf90pbqkh9sm3ch945p40";
@@ -120,7 +120,7 @@
 
           systemd.tmpfiles.rules = [
             "v /home/.snapshots 0700 root root"
-            "Z /etc/nixos 0755"
+            "Z /etc/nixos 0755 chika chika"
           ];
 
           services.fwupd.enable = true;
@@ -128,6 +128,11 @@
           hardware.logitech.wireless.enable = true;
 
           services.printing.enable = true;
+
+          services.avahi = {
+            enable = true;
+            nssmdns4 = true;
+          };
 
           virtualisation.podman.enable = true;
           virtualisation.podman.dockerCompat = true;
@@ -142,13 +147,17 @@
           boot.loader.systemd-boot.enable = true;
           boot.loader.efi.canTouchEfiVariables = true;
 
+          boot.plymouth.enable = true;
+
+          boot.kernelPackages = pkgs.linuxPackages_6_13;
+
           time.timeZone = "America/New_York";
 
           networking.hostName = "nixos";
 
           users.users.chika = {
             isNormalUser = true;
-            description = "Chika";
+            description = "Rohan";
             extraGroups = [ "networkmanager" "wheel" "i2c" ];
             uid = 1000;
             shell = pkgs.fish;
