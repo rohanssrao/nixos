@@ -26,10 +26,14 @@
             fzf
             adw-gtk3
             ddcutil
+            magic-wormhole
 
+            tor-browser
+            thunderbird
             steam
+            steam-run
             ghostty
-            chromium
+            brave
             signal-desktop
             vscode
             obsidian
@@ -54,6 +58,8 @@
             gnomeExtensions.rounded-window-corners-reborn
             gnomeExtensions.removable-drive-menu
             gnomeExtensions.bluetooth-battery-meter
+            gnomeExtensions.unblank
+            gnomeExtensions.night-theme-switcher
           ];
 
           services.displayManager.gdm.enable = true;
@@ -148,8 +154,6 @@
           boot.loader.efi.canTouchEfiVariables = true;
 
           boot.plymouth.enable = true;
-
-          boot.kernelPackages = pkgs.linuxPackages_6_13;
 
           time.timeZone = "America/New_York";
 
